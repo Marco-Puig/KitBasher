@@ -1,7 +1,9 @@
 #include "XRManager.h"
 #include "platform/Window.h"
-
+#include "xr/VRPlayerRig.h"
+#include "scene/Node.h"
 #include <glm/gtc/matrix_transform.hpp>
+
 #include <glm/gtc/quaternion.hpp>
 
 #include <algorithm>
@@ -13,7 +15,7 @@
 
 #include <GLFW/glfw3.h>
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
 
 #ifdef _WIN32
 #include <windows.h>
@@ -59,7 +61,7 @@ bool XRManager::init(Window& window) {
     if (m_simulationRequested)
         return false;
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     m_running = false;
     m_sessionReady = false;
     m_frameBegun = false;
@@ -84,7 +86,7 @@ bool XRManager::init(Window& window) {
 }
 
 void XRManager::shutdown() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_frameBegun && m_session != XR_NULL_HANDLE && m_sessionReady) {
         endFrame();
     }
@@ -96,7 +98,7 @@ void XRManager::shutdown() {
 }
 
 bool XRManager::beginFrame() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     pollEvents();
 
     if (!m_running || !m_sessionReady)
@@ -183,7 +185,7 @@ bool XRManager::beginFrame() {
 }
 
 void XRManager::pollEvents() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_instance == XR_NULL_HANDLE)
         return;
 
@@ -224,7 +226,7 @@ void XRManager::pollEvents() {
 }
 
 bool XRManager::acquireView(uint32_t eye, glm::mat4& view, glm::mat4& projection) {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (!m_frameBegun || eye >= 2 || m_session == XR_NULL_HANDLE)
         return false;
 
@@ -297,7 +299,7 @@ bool XRManager::acquireView(uint32_t eye, glm::mat4& view, glm::mat4& projection
 }
 
 void XRManager::releaseView(uint32_t eye) {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (eye >= 2 || !m_acquired[eye])
         return;
 
@@ -318,7 +320,7 @@ void XRManager::releaseView(uint32_t eye) {
 }
 
 uint32_t XRManager::getViewTexture(uint32_t eye) const {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (eye >= 2 || !m_acquired[eye])
         return 0;
 
@@ -343,7 +345,7 @@ uint32_t XRManager::getViewHeight(uint32_t eye) const {
 }
 
 void XRManager::endFrame() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (!m_frameBegun)
         return;
 
@@ -403,6 +405,26 @@ void XRManager::endFrame() {
 #endif
 }
 
+
+glm::mat4 XRManager::getHeadViewMatrix() const {
+#ifdef KITBASHER_ENABLE_OPENXR
+    if (!m_sessionReady || m_views[0].type == 0) {
+        return glm::mat4(1.0f);
+    }
+
+    // The head pose is relative to the stage space.
+    // We combine it with the VRPlayerRig's world transform.
+    const XrPosef& pose = m_views[0].pose;
+    const glm::quat orientation(pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z);
+    const glm::vec3 position(pose.position.x, pose.position.y, pose.position.z);
+    
+    glm::mat4 localView = glm::translate(glm::mat4(1.0f), -position) * glm::mat4_cast(glm::conjugate(orientation));
+    return VRPlayerRig::getInstance().getWorldToRig() * localView;
+#else
+    return glm::mat4(1.0f);
+#endif
+}
+
 void XRManager::syncActions() {
     if (isSimulated() && m_simulationWindow != nullptr) {
         GLFWwindow* window = m_simulationWindow->getHandle();
@@ -441,7 +463,7 @@ void XRManager::syncActions() {
         return;
     }
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_session == XR_NULL_HANDLE)
         return;
 
@@ -459,7 +481,7 @@ bool XRManager::controllerButtonPressed(uint32_t controller, uint32_t button) co
     if (isSimulated())
         return controller < 2 && button == 0 && m_simulatedControllers[controller].select;
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (button != 0 || controller > 1)
         return false;
 
@@ -486,9 +508,25 @@ XRControllerState XRManager::getControllerState(uint32_t controller) const {
     if (isSimulated())
         return m_simulatedControllers[controller];
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     XRControllerState state{};
     state.select = controllerButtonPressed(controller, 0);
+
+    XrSpace handSpace = (controller == 0) ? m_leftHandSpace : m_rightHandSpace;
+    if (handSpace != XR_NULL_HANDLE) {
+        XrSpaceLocation location{XR_TYPE_SPACE_LOCATION};
+        
+        // Use xrLocateSpace. Correct signature for OpenXR 1.0:
+        // XrResult xrLocateSpace(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location);
+        
+        if (xrLocateSpace(handSpace, m_stageSpace, 0, &location) == XR_SUCCESS && location.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) {
+            state.position = glm::vec3(location.pose.position.x, location.pose.position.y, location.pose.position.z);
+            state.orientation = glm::quat(location.pose.orientation.w, location.pose.orientation.x, location.pose.orientation.y, location.pose.orientation.z);
+        }
+    }
+
+    state.trigger = state.select ? 1.0f : 0.0f;
+    
     return state;
 #else
     return {};
@@ -519,7 +557,7 @@ glm::vec2 XRManager::getThumbstick(uint32_t controller) const {
         );
     }
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_session == XR_NULL_HANDLE)
         return glm::vec2(0.0f);
 
@@ -543,7 +581,7 @@ glm::vec2 XRManager::getThumbstick(uint32_t controller) const {
     return glm::vec2(0.0f);
 }
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
 
 bool XRManager::check(XrResult result, const char* operation) const {
     if (XR_FAILED(result)) {
@@ -604,13 +642,13 @@ bool XRManager::createInstance() {
 
     std::strncpy(
         createInfo.applicationInfo.applicationName,
-        "ChiselEngine",
+        "KitBasher",
         XR_MAX_APPLICATION_NAME_SIZE - 1
     );
 
     std::strncpy(
         createInfo.applicationInfo.engineName,
-        "ChiselEngine",
+        "KitBasher",
         XR_MAX_ENGINE_NAME_SIZE - 1
     );
 
@@ -694,6 +732,20 @@ bool XRManager::createSession(Window& window) {
             xrCreateReferenceSpace(m_session, &viewSpaceInfo, &m_viewSpace),
             "xrCreateReferenceSpace(view)"
         )) {
+        return false;
+    }
+
+    // Create action spaces for hand tracking
+    XrActionSpaceCreateInfo actionSpaceInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
+
+    actionSpaceInfo.action = m_handPoseAction;
+    actionSpaceInfo.subactionPath = m_leftHandPath;
+    if (!check(xrCreateActionSpace(m_session, &actionSpaceInfo, &m_leftHandSpace), "xrCreateActionSpace(left)")) {
+        return false;
+    }
+
+    actionSpaceInfo.subactionPath = m_rightHandPath;
+    if (!check(xrCreateActionSpace(m_session, &actionSpaceInfo, &m_rightHandSpace), "xrCreateActionSpace(right)")) {
         return false;
     }
 
@@ -1073,6 +1125,16 @@ bool XRManager::createSwapchains() {
 void XRManager::destroySessionResources() {
     if (m_sessionReady && m_session != XR_NULL_HANDLE) {
         xrEndSession(m_session);
+    }
+
+    if (m_leftHandSpace != XR_NULL_HANDLE) {
+        xrDestroySpace(m_leftHandSpace);
+        m_leftHandSpace = XR_NULL_HANDLE;
+    }
+
+    if (m_rightHandSpace != XR_NULL_HANDLE) {
+        xrDestroySpace(m_rightHandSpace);
+        m_rightHandSpace = XR_NULL_HANDLE;
     }
 
     for (uint32_t eye = 0; eye < 2; ++eye) {

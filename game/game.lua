@@ -160,8 +160,28 @@ function game.onStart(scene, animator)
     light:setIntensity(0.4)
     light:setColor(1.0, 0.9, 0.8)
     light:setPosition(0.0, 4.0, 0.0)
+    
+    -- Demo: Interaction objects
+    -- We now spawn them explicitly. Since they are specialized nodes,
+    -- we use the Interaction manager or manual instantiation if available.
+    -- For now, we'll assume these are pre-spawned or created via a compatible method.
+    local btn = scene:findNode("MyTestButton")
+    if btn then
+        btn:setPosition(0.0, 1.0, -0.5)
+    end
+    
+    local lJoy = scene:findNode("LeftJoystick")
+    if lJoy then
+        lJoy:setPosition(-0.3, 1.0, -0.5)
+    end
+    
+    local rJoy = scene:findNode("RightJoystick")
+    if rJoy then
+        rJoy:setPosition(0.3, 1.0, -0.5)
+    end
 
     Engine.setSkybox("resources/graphics/skybox.jpg")
+
 
     local floor = scene:loadMesh("resources/models/plane.glb", "Floor")
     floor:setPosition(0.0, 0.0, 0.0)
@@ -286,6 +306,12 @@ function game.onUpdate(deltaTime, scene, animator)
     
     -- Player avatar movement
     updateLocalAvatar(scene)
+    
+    -- Demo: Interaction feedback
+    local btn = scene:findNode("TestButton")
+    if btn and btn:isPressed() then
+        -- You could trigger an event or sound here
+    end
 
     
     -- Offline avatar animation

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <vector>
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
 #include <openxr/openxr.h>
 #endif
 
@@ -35,6 +35,7 @@ public:
     bool acquireView(uint32_t eye, glm::mat4& view, glm::mat4& projection);
     void releaseView(uint32_t eye);
     uint32_t getViewTexture(uint32_t eye) const;
+    glm::mat4 getHeadViewMatrix() const;
     uint32_t getViewWidth(uint32_t eye) const;
     uint32_t getViewHeight(uint32_t eye) const;
     void endFrame();
@@ -52,7 +53,7 @@ private:
     XRManager(const XRManager&) = delete;
     XRManager& operator=(const XRManager&) = delete;
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     bool createInstance();
     bool createSession(Window& window);
     bool createActions();
@@ -65,6 +66,8 @@ private:
     XrSession m_session = XR_NULL_HANDLE;
     XrSpace m_stageSpace = XR_NULL_HANDLE;
     XrSpace m_viewSpace = XR_NULL_HANDLE;
+    XrSpace m_leftHandSpace = XR_NULL_HANDLE;
+    XrSpace m_rightHandSpace = XR_NULL_HANDLE;
     XrSessionState m_sessionState = XR_SESSION_STATE_UNKNOWN;
     XrFrameState m_frameState{XR_TYPE_FRAME_STATE};
     XrActionSet m_actionSet = XR_NULL_HANDLE;

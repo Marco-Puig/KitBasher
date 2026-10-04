@@ -6,7 +6,7 @@ Please ensure you download the Steamworks SDK and place it in the third_party fo
 
 ## Overview
 
-ChiselEngine features a built-in **host-authoritative** multiplayer system designed for private co-op lobbies (up to 3 players). 
+KitBasher features a built-in **host-authoritative** multiplayer system designed for private co-op lobbies (up to 3 players). 
 
 In this model:
 * **The Host (Player 0)** runs the authoritative game simulation, physics, and gameplay logic.

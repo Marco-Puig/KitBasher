@@ -1,6 +1,6 @@
 # VR Player Rig API
 
-The VR Player Rig is the core locomotion and tracking system for VR experiences in ChiselEngine. It decouples the physical headset position (OpenXR tracking) from the virtual world position, allowing developers to implement teleportation, artificial locomotion (thumbstick movement), and comfort turning (snap or smooth).
+The VR Player Rig is the core locomotion and tracking system for VR experiences in KitBasher. It decouples the physical headset position (OpenXR tracking) from the virtual world position, allowing developers to implement teleportation, artificial locomotion (thumbstick movement), and comfort turning (snap or smooth).
 
 ## Core Concepts
 

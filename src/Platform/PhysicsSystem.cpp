@@ -15,7 +15,7 @@
 #include <windows.h>
 #endif
 
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <Jolt/RegisterTypes.h>
@@ -101,7 +101,7 @@ ObjectLayerPair gObjectLayerPair;
 
 PhysicsBody::PhysicsBody(Node* node, BodyType type, const glm::vec3& size)
     : m_node(node), m_type(type), m_size(size)
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     , m_bodyID(JPH::BodyID())
 #endif
 {
@@ -110,7 +110,7 @@ PhysicsBody::PhysicsBody(Node* node, BodyType type, const glm::vec3& size)
 PhysicsBody::~PhysicsBody() = default;
 
 void PhysicsBody::syncFromPhysics() {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     if (m_node == nullptr || m_bodyID.IsInvalid())
         return;
     JPH::RVec3 position;
@@ -128,7 +128,7 @@ void PhysicsBody::syncFromPhysics() {
 }
 
 void PhysicsBody::syncToPhysics() {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     if (m_bodyID.IsInvalid())
         return;
     auto& bodyInterface = PhysicsSystem::getInstance().m_physicsSystem.GetBodyInterface();
@@ -149,7 +149,7 @@ void PhysicsBody::syncToPhysics() {
 }
 
 void PhysicsBody::beginEditorManipulation() {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     if (m_bodyID.IsInvalid())
         return;
     auto& bodyInterface = PhysicsSystem::getInstance().m_physicsSystem.GetBodyInterface();
@@ -166,7 +166,7 @@ void PhysicsBody::beginEditorManipulation() {
 }
 
 void PhysicsBody::endEditorManipulation() {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     if (m_bodyID.IsInvalid() || m_type != BodyType::Dynamic)
         return;
     auto& bodyInterface = PhysicsSystem::getInstance().m_physicsSystem.GetBodyInterface();
@@ -178,7 +178,7 @@ void PhysicsBody::endEditorManipulation() {
 }
 
 void PhysicsBody::appendDebugLines(std::vector<PhysicsDebugLine>& lines) const {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     const char* debugStage = "validation";
 #if defined(_CPPUNWIND)
     try {
@@ -363,7 +363,7 @@ void PhysicsSystem::endEditorManipulation(Node* node) {
 }
 
 void PhysicsSystem::wakeDynamicBodies() {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     auto& bodyInterface = m_physicsSystem.GetBodyInterface();
     for (const auto& body : m_bodies) {
         if (body != nullptr && body->m_type == BodyType::Dynamic &&
@@ -389,7 +389,7 @@ PhysicsSystem::~PhysicsSystem() {
 void PhysicsSystem::init() {
     if (m_initialized)
         return;
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     JPH::RegisterDefaultAllocator();
     JPH::Trace = joltTrace;
     JPH::AssertFailed = joltAssertFailed;
@@ -408,7 +408,7 @@ void PhysicsSystem::shutdown() {
     if (!m_initialized)
         return;
     m_bodies.clear();
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     delete m_jobSystem;
     delete m_tempAllocator;
     JPH::UnregisterTypes();
@@ -432,7 +432,7 @@ PhysicsBody* PhysicsSystem::createRigidBody(Node* node, BodyType type,
         PhysicsSystem::getInstance().init();
     auto body = std::make_unique<PhysicsBody>(node, type, size);
     PhysicsBody* result = body.get();
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     std::vector<JPH::Vec3> hullPoints;
     std::function<void(Node*)> collectPoints = [&](Node* node) {
         if (auto* mesh = dynamic_cast<const MeshNode*>(node)) {
@@ -596,7 +596,7 @@ void PhysicsSystem::update(float renderDeltaTime) {
     m_accumulator += std::min(static_cast<double>(renderDeltaTime), 0.25);
     constexpr double fixedStep = 1.0 / 60.0;
     while (m_accumulator >= fixedStep) {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
         m_physicsSystem.Update(static_cast<float>(fixedStep), 1,
                                m_tempAllocator, m_jobSystem);
 #endif
@@ -659,7 +659,7 @@ std::vector<PhysicsDebugLine> PhysicsSystem::getDebugLines() const {
 }
 
 void PhysicsSystem::setBodyPosition(Node* node, const glm::vec3& position) {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     for (const auto& body : m_bodies) {
         if (body != nullptr && body->m_node == node && !body->m_bodyID.IsInvalid()) {
             m_physicsSystem.GetBodyInterface().SetPosition(
@@ -673,7 +673,7 @@ void PhysicsSystem::setBodyPosition(Node* node, const glm::vec3& position) {
 }
 
 void PhysicsSystem::addForce(Node* node, const glm::vec3& force) {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     for (const auto& body : m_bodies) {
         if (body != nullptr && body->m_node == node && !body->m_bodyID.IsInvalid()) {
             m_physicsSystem.GetBodyInterface().AddForce(
@@ -686,7 +686,7 @@ void PhysicsSystem::addForce(Node* node, const glm::vec3& force) {
 }
 
 void PhysicsSystem::setLinearVelocity(Node* node, const glm::vec3& velocity) {
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     for (const auto& body : m_bodies) {
         if (body != nullptr && body->m_node == node && !body->m_bodyID.IsInvalid()) {
             m_physicsSystem.GetBodyInterface().SetLinearVelocity(

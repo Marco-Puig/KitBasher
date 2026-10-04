@@ -18,13 +18,13 @@ if errorlevel 1 (
 
 set EXE=
 
-if exist "build\bin\%CONFIG%\ChiselEngine.exe" set EXE=build\bin\%CONFIG%\ChiselEngine.exe
-if "%EXE%"=="" if exist "build\%CONFIG%\ChiselEngine.exe" set EXE=build\%CONFIG%\ChiselEngine.exe
-if "%EXE%"=="" if exist "build\bin\ChiselEngine.exe" set EXE=build\bin\ChiselEngine.exe
-if "%EXE%"=="" if exist "build\ChiselEngine.exe" set EXE=build\ChiselEngine.exe
+if exist "build\bin\%CONFIG%\KitBasher.exe" set EXE=build\bin\%CONFIG%\KitBasher.exe
+if "%EXE%"=="" if exist "build\%CONFIG%\KitBasher.exe" set EXE=build\%CONFIG%\KitBasher.exe
+if "%EXE%"=="" if exist "build\bin\KitBasher.exe" set EXE=build\bin\KitBasher.exe
+if "%EXE%"=="" if exist "build\KitBasher.exe" set EXE=build\KitBasher.exe
 
 if "%EXE%"=="" (
-    echo Could not find ChiselEngine.exe under build\. Build it first with rebuild.bat.
+    echo Could not find KitBasher.exe under build\. Build it first with rebuild.bat.
     exit /b 1
 )
 
@@ -37,11 +37,11 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-.\ChiselEngine.exe
+.\KitBasher.exe
 set RUN_CODE=%ERRORLEVEL%
 popd
 if not "%RUN_CODE%"=="0" (
-    echo ChiselEngine exited with code %RUN_CODE%.
+    echo KitBasher exited with code %RUN_CODE%.
     pause
 )
 exit /b %RUN_CODE%

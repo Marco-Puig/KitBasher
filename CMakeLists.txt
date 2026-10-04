@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
-project(ChiselEngine LANGUAGES C CXX)
+project(KitBasher LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-option(CHISEL_ENABLE_OPENXR "Build OpenXR headset support" ON)
-option(CHISEL_ENABLE_JOLT "Build Jolt Physics support" ON)
-option(CHISEL_ENABLE_LUA "Build Lua scripting support" ON)
-option(CHISEL_ENABLE_STEAM "Build Steamworks multiplayer support" ON)
+option(KITBASHER_ENABLE_OPENXR "Build OpenXR headset support" ON)
+option(KITBASHER_ENABLE_JOLT "Build Jolt Physics support" ON)
+option(KITBASHER_ENABLE_LUA "Build Lua scripting support" ON)
+option(KITBASHER_ENABLE_STEAM "Build Steamworks multiplayer support" ON)
 
 include(FetchContent)
 
@@ -87,7 +87,7 @@ FetchContent_Declare(miniaudio
     EXCLUDE_FROM_ALL
 )
 
-if(CHISEL_ENABLE_LUA)
+if(KITBASHER_ENABLE_LUA)
     FetchContent_Declare(lua
         URL https://www.lua.org/ftp/lua-5.4.7.tar.gz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
@@ -103,7 +103,7 @@ if(CHISEL_ENABLE_LUA)
     )
 endif()
 
-if(CHISEL_ENABLE_OPENXR)
+if(KITBASHER_ENABLE_OPENXR)
     FetchContent_Declare(openxr
         GIT_REPOSITORY https://github.com/KhronosGroup/OpenXR-SDK-Source.git
         GIT_TAG        release-1.1.46
@@ -113,7 +113,7 @@ if(CHISEL_ENABLE_OPENXR)
     )
 endif()
 
-if(CHISEL_ENABLE_JOLT)
+if(KITBASHER_ENABLE_JOLT)
     set(USE_ASSERTS ON CACHE BOOL "" FORCE)
     set(JPH_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
     set(JPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -129,7 +129,7 @@ endif()
 
 FetchContent_MakeAvailable(glfw glm glad tinygltf imgui imguizmo stb miniaudio)
 
-if(CHISEL_ENABLE_LUA)
+if(KITBASHER_ENABLE_LUA)
     FetchContent_MakeAvailable(lua luabridge)
     
     file(GLOB LUA_SOURCES CONFIGURE_DEPENDS
@@ -146,12 +146,12 @@ if(CHISEL_ENABLE_LUA)
     endif()
 endif()
 
-if(CHISEL_ENABLE_OPENXR)
+if(KITBASHER_ENABLE_OPENXR)
     set(DYNAMIC_LOADER OFF CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(openxr)
 endif()
 
-if(CHISEL_ENABLE_JOLT)
+if(KITBASHER_ENABLE_JOLT)
     FetchContent_MakeAvailable(jolt)
     add_subdirectory(${jolt_SOURCE_DIR}/Build ${jolt_BINARY_DIR})
     if(MSVC AND TARGET Jolt)
@@ -202,64 +202,64 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
-add_executable(ChiselEngine ${SOURCES})
+add_executable(KitBasher ${SOURCES})
 
-target_include_directories(ChiselEngine PRIVATE
+target_include_directories(KitBasher PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${imguizmo_SOURCE_DIR}/src
     ${stb_SOURCE_DIR}
     ${miniaudio_SOURCE_DIR}
 )
-if(CHISEL_ENABLE_LUA)
-    target_include_directories(ChiselEngine PRIVATE ${luabridge_SOURCE_DIR}/Source)
+if(KITBASHER_ENABLE_LUA)
+    target_include_directories(KitBasher PRIVATE ${luabridge_SOURCE_DIR}/Source)
 endif()
 
-target_compile_definitions(ChiselEngine PRIVATE 
+target_compile_definitions(KitBasher PRIVATE 
     GLFW_INCLUDE_NONE 
     IMGUI_DEFINE_MATH_OPERATORS
     GLM_ENABLE_EXPERIMENTAL
 )
 
-if(CHISEL_ENABLE_OPENXR)
-    target_compile_definitions(ChiselEngine PRIVATE
-        CHISEL_ENABLE_OPENXR
+if(KITBASHER_ENABLE_OPENXR)
+    target_compile_definitions(KitBasher PRIVATE
+        KITBASHER_ENABLE_OPENXR
         XR_USE_GRAPHICS_API_OPENGL
     )
     if(WIN32)
-        target_compile_definitions(ChiselEngine PRIVATE XR_USE_PLATFORM_WIN32)
+        target_compile_definitions(KitBasher PRIVATE XR_USE_PLATFORM_WIN32)
     endif()
-    target_link_libraries(ChiselEngine PRIVATE openxr_loader)
+    target_link_libraries(KitBasher PRIVATE openxr_loader)
 endif()
 
-if(CHISEL_ENABLE_JOLT)
-    target_compile_definitions(ChiselEngine PRIVATE CHISEL_ENABLE_JOLT)
-    target_include_directories(ChiselEngine PRIVATE ${jolt_SOURCE_DIR})
-    target_link_libraries(ChiselEngine PRIVATE Jolt)
+if(KITBASHER_ENABLE_JOLT)
+    target_compile_definitions(KitBasher PRIVATE KITBASHER_ENABLE_JOLT)
+    target_include_directories(KitBasher PRIVATE ${jolt_SOURCE_DIR})
+    target_link_libraries(KitBasher PRIVATE Jolt)
 endif()
 
-if(CHISEL_ENABLE_STEAM)
+if(KITBASHER_ENABLE_STEAM)
     set(STEAMWORKS_ROOT ${CMAKE_SOURCE_DIR}/third_party/steamworks)
-    target_compile_definitions(ChiselEngine PRIVATE CHISEL_ENABLE_STEAM)
-    target_include_directories(ChiselEngine PRIVATE
+    target_compile_definitions(KitBasher PRIVATE KITBASHER_ENABLE_STEAM)
+    target_include_directories(KitBasher PRIVATE
         ${STEAMWORKS_ROOT}/public
     )
     if(WIN32)
-        target_link_libraries(ChiselEngine PRIVATE
+        target_link_libraries(KitBasher PRIVATE
             ${STEAMWORKS_ROOT}/redistributable_bin/win64/steam_api64.lib
         )
-        add_custom_command(TARGET ChiselEngine POST_BUILD
+        add_custom_command(TARGET KitBasher POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${STEAMWORKS_ROOT}/redistributable_bin/win64/steam_api64.dll"
-            $<TARGET_FILE_DIR:ChiselEngine>
+            $<TARGET_FILE_DIR:KitBasher>
         )
     endif()
     file(GENERATE
-        OUTPUT "$<TARGET_FILE_DIR:ChiselEngine>/steam_appid.txt"
+        OUTPUT "$<TARGET_FILE_DIR:KitBasher>/steam_appid.txt"
         CONTENT "480"
     )
 endif()
 
-target_link_libraries(ChiselEngine PRIVATE
+target_link_libraries(KitBasher PRIVATE
     glad
     glfw
     glm::glm
@@ -270,20 +270,20 @@ target_link_libraries(ChiselEngine PRIVATE
 )
 
 if(WIN32)
-    target_link_libraries(ChiselEngine PRIVATE winmm ole32 user32)
+    target_link_libraries(KitBasher PRIVATE winmm ole32 user32)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(ChiselEngine PRIVATE pthread dl m)
+    target_link_libraries(KitBasher PRIVATE pthread dl m)
 elseif(APPLE)
-    target_link_libraries(ChiselEngine PRIVATE "-framework CoreFoundation" "-framework CoreAudio" "-framework AudioToolbox")
+    target_link_libraries(KitBasher PRIVATE "-framework CoreFoundation" "-framework CoreAudio" "-framework AudioToolbox")
 endif()
 
-if(CHISEL_ENABLE_LUA)
-    target_link_libraries(ChiselEngine PRIVATE lua)
-    target_compile_definitions(ChiselEngine PRIVATE CHISEL_ENABLE_LUA)
+if(KITBASHER_ENABLE_LUA)
+    target_link_libraries(KitBasher PRIVATE lua)
+    target_compile_definitions(KitBasher PRIVATE KITBASHER_ENABLE_LUA)
 endif()
 
 if(WIN32)
-    target_compile_definitions(ChiselEngine PRIVATE
+    target_compile_definitions(KitBasher PRIVATE
         NOMINMAX
         WIN32_LEAN_AND_MEAN
         _CRT_SECURE_NO_WARNINGS
@@ -291,25 +291,25 @@ if(WIN32)
 endif()
 
 if(MSVC)
-    target_compile_options(ChiselEngine PRIVATE /W4 /permissive-)
+    target_compile_options(KitBasher PRIVATE /W4 /permissive-)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                 PROPERTY VS_STARTUP_PROJECT ChiselEngine)
+                 PROPERTY VS_STARTUP_PROJECT KitBasher)
 else()
-    target_compile_options(ChiselEngine PRIVATE -Wall -Wextra)
+    target_compile_options(KitBasher PRIVATE -Wall -Wextra)
 endif()
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/resources)
-    add_custom_command(TARGET ChiselEngine POST_BUILD
+    add_custom_command(TARGET KitBasher POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             ${CMAKE_CURRENT_SOURCE_DIR}/resources
-            $<TARGET_FILE_DIR:ChiselEngine>/resources
+            $<TARGET_FILE_DIR:KitBasher>/resources
     )
 endif()
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/game)
-    add_custom_command(TARGET ChiselEngine POST_BUILD
+    add_custom_command(TARGET KitBasher POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             ${CMAKE_CURRENT_SOURCE_DIR}/game
-            $<TARGET_FILE_DIR:ChiselEngine>/game
+            $<TARGET_FILE_DIR:KitBasher>/game
     )
 endif()

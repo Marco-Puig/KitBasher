@@ -21,9 +21,11 @@ public:
     void init();
     void render(Node* rootNode);
     void renderView(Node* rootNode, const glm::mat4& view,
-                    const glm::mat4& projection, unsigned int framebuffer,
-                    int width, int height);
+                     const glm::mat4& projection, unsigned int framebuffer,
+                     int width, int height);
+    void drawCameraGizmo(const glm::mat4& view, const glm::mat4& projection);
     void updateShadowMap(Node* rootNode);
+
     void updateShadowMap(Node* rootNode, const glm::mat4& view);
     void addLight(Light* light) { m_lights.push_back(light); }
     void setDesktopCamera(ArcRotateCamera* camera) { m_desktopCamera = camera; }

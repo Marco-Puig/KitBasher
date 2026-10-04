@@ -25,4 +25,4 @@ if errorlevel 1 (
 )
 
 echo Build completed successfully.
-echo Output: build\bin\%CONFIG%\ChiselEngine.exe
+echo Output: build\bin\%CONFIG%\KitBasher.exe

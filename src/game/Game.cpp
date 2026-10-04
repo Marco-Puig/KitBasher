@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "xr/InteractionManager.h"
 
 #include "net/NetworkManager.h"
 #include "net/ReplicationManager.h"
@@ -27,6 +28,7 @@ void Game::start() {
     }
 
     luaRuntime->startGame(*scene, *animator);
+    InteractionManager::getInstance().init(scene.get());
 }
 
 void Game::update(float deltaTime) {

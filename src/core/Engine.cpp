@@ -9,6 +9,10 @@
 #include "scene/ArcRotateCamera.h"
 #include "xr/VRPlayerRig.h"
 #include "xr/VRInput.h"
+#include "xr/InteractionManager.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -68,7 +72,7 @@ void Engine::init(int argc, char** argv) {
 #ifdef _WIN32
     SetUnhandledExceptionFilter(engineUnhandledException);
 #endif
-    m_window = std::make_unique<Window>(1600, 900, "Chisel Engine");
+    m_window = std::make_unique<Window>(1600, 900, "Kit Basher");
 
     // Initialize Steammmm FIRST (Important)
     net::NetworkManager::getInstance().init();
@@ -151,6 +155,8 @@ void Engine::run(IGame* game) {
                     VRInputFrame input = gatherVRInput(xr);
                     vrRig.update(dt, input, rawView);
                     rigUpdated = true;
+
+                    InteractionManager::getInstance().update(input, vrRig.getRigToWorld());
                 }
 
                 const glm::mat4 finalView = vrRig.applyToView(rawView);

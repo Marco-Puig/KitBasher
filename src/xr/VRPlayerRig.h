@@ -2,13 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-struct VRInputFrame {
-    glm::vec2 move{0.0f};       
-    glm::vec2 turn{0.0f};       
-    bool snapTurnLeft = false;
-    bool snapTurnRight = false;
-};
+#include "VRInput.h"
 
 class VRPlayerRig {
 public:
