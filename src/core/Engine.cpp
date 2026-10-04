@@ -72,7 +72,7 @@ void Engine::init(int argc, char** argv) {
 #ifdef _WIN32
     SetUnhandledExceptionFilter(engineUnhandledException);
 #endif
-    m_window = std::make_unique<Window>(1600, 900, "Chisel Engine");
+    m_window = std::make_unique<Window>(1600, 900, "Kit Basher");
 
     // Initialize Steammmm FIRST (Important)
     net::NetworkManager::getInstance().init();

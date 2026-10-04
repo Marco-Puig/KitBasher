@@ -15,7 +15,7 @@
 
 #include <GLFW/glfw3.h>
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
 
 #ifdef _WIN32
 #include <windows.h>
@@ -61,7 +61,7 @@ bool XRManager::init(Window& window) {
     if (m_simulationRequested)
         return false;
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     m_running = false;
     m_sessionReady = false;
     m_frameBegun = false;
@@ -86,7 +86,7 @@ bool XRManager::init(Window& window) {
 }
 
 void XRManager::shutdown() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_frameBegun && m_session != XR_NULL_HANDLE && m_sessionReady) {
         endFrame();
     }
@@ -98,7 +98,7 @@ void XRManager::shutdown() {
 }
 
 bool XRManager::beginFrame() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     pollEvents();
 
     if (!m_running || !m_sessionReady)
@@ -185,7 +185,7 @@ bool XRManager::beginFrame() {
 }
 
 void XRManager::pollEvents() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_instance == XR_NULL_HANDLE)
         return;
 
@@ -226,7 +226,7 @@ void XRManager::pollEvents() {
 }
 
 bool XRManager::acquireView(uint32_t eye, glm::mat4& view, glm::mat4& projection) {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (!m_frameBegun || eye >= 2 || m_session == XR_NULL_HANDLE)
         return false;
 
@@ -299,7 +299,7 @@ bool XRManager::acquireView(uint32_t eye, glm::mat4& view, glm::mat4& projection
 }
 
 void XRManager::releaseView(uint32_t eye) {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (eye >= 2 || !m_acquired[eye])
         return;
 
@@ -320,7 +320,7 @@ void XRManager::releaseView(uint32_t eye) {
 }
 
 uint32_t XRManager::getViewTexture(uint32_t eye) const {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (eye >= 2 || !m_acquired[eye])
         return 0;
 
@@ -345,7 +345,7 @@ uint32_t XRManager::getViewHeight(uint32_t eye) const {
 }
 
 void XRManager::endFrame() {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (!m_frameBegun)
         return;
 
@@ -407,7 +407,7 @@ void XRManager::endFrame() {
 
 
 glm::mat4 XRManager::getHeadViewMatrix() const {
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (!m_sessionReady || m_views[0].type == 0) {
         return glm::mat4(1.0f);
     }
@@ -463,7 +463,7 @@ void XRManager::syncActions() {
         return;
     }
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_session == XR_NULL_HANDLE)
         return;
 
@@ -481,7 +481,7 @@ bool XRManager::controllerButtonPressed(uint32_t controller, uint32_t button) co
     if (isSimulated())
         return controller < 2 && button == 0 && m_simulatedControllers[controller].select;
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (button != 0 || controller > 1)
         return false;
 
@@ -508,7 +508,7 @@ XRControllerState XRManager::getControllerState(uint32_t controller) const {
     if (isSimulated())
         return m_simulatedControllers[controller];
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     XRControllerState state{};
     state.select = controllerButtonPressed(controller, 0);
 
@@ -557,7 +557,7 @@ glm::vec2 XRManager::getThumbstick(uint32_t controller) const {
         );
     }
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     if (m_session == XR_NULL_HANDLE)
         return glm::vec2(0.0f);
 
@@ -581,7 +581,7 @@ glm::vec2 XRManager::getThumbstick(uint32_t controller) const {
     return glm::vec2(0.0f);
 }
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
 
 bool XRManager::check(XrResult result, const char* operation) const {
     if (XR_FAILED(result)) {
@@ -642,13 +642,13 @@ bool XRManager::createInstance() {
 
     std::strncpy(
         createInfo.applicationInfo.applicationName,
-        "ChiselEngine",
+        "KitBasher",
         XR_MAX_APPLICATION_NAME_SIZE - 1
     );
 
     std::strncpy(
         createInfo.applicationInfo.engineName,
-        "ChiselEngine",
+        "KitBasher",
         XR_MAX_ENGINE_NAME_SIZE - 1
     );
 

@@ -7,7 +7,7 @@
 #include <chrono>
 #include <algorithm>
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
 #include <steam/steam_api.h>
 
 namespace {
@@ -175,7 +175,7 @@ public:
 static CGameLobbyJoinRequestedCallback g_gameLobbyJoinRequestedCallback;
 
 } // anonymous namespace
-#endif // CHISEL_ENABLE_STEAM
+#endif // KITBASHER_ENABLE_STEAM
 
 namespace net {
 
@@ -205,7 +205,7 @@ bool NetworkManager::init() {
         return true;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (!SteamAPI_Init()) {
         std::cerr << "[Network] SteamAPI_Init failed. "
                   << "Ensure Steam is running and steam_appid.txt exists.\n";
@@ -232,7 +232,7 @@ void NetworkManager::shutdown() {
         return;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (g_lobbyState.lobbyReady) {
         SteamMatchmaking()->LeaveLobby(g_lobbyState.lobbyId);
         g_lobbyState.lobbyReady = false;
@@ -259,7 +259,7 @@ bool NetworkManager::hostPrivateLobby(std::string& outLobbyCode) {
         return false;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     // If already hosting, just return the existing code.
     if (g_lobbyState.lobbyReady && g_lobbyState.isHost) {
         outLobbyCode = g_lobbyState.outLobbyCode;
@@ -353,7 +353,7 @@ bool NetworkManager::joinPrivateLobby(const std::string& lobbyCode) {
         return false;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     uint64_t lobbyIdNum = 0;
     try {
         lobbyIdNum = std::stoull(lobbyCode);
@@ -406,7 +406,7 @@ bool NetworkManager::joinPrivateLobby(const std::string& lobbyCode) {
 }
 
 void NetworkManager::showInviteDialog() {
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (!g_lobbyState.lobbyReady || !g_lobbyState.isHost) {
         std::cerr << "[Network] Cannot show invite dialog: not hosting a lobby\n";
         return;
@@ -419,7 +419,7 @@ void NetworkManager::showInviteDialog() {
 }
 
 void NetworkManager::joinLobbyBySteamId(uint64_t steamLobbyId) {
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (!m_initialized) {
         return;
     }
@@ -461,7 +461,7 @@ void NetworkManager::update(float deltaTime) {
         return;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     SteamAPI_RunCallbacks();
 
     if (!m_connected) {
@@ -507,7 +507,7 @@ void NetworkManager::broadcastReliable(const void* data, size_t size) {
         return;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     for (const auto& player : m_players) {
         if (player.slot == m_localSlot) {
             continue;
@@ -535,7 +535,7 @@ void NetworkManager::broadcastUnreliable(const void* data, size_t size) {
         return;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     for (const auto& player : m_players) {
         if (player.slot == m_localSlot) {
             continue;
@@ -567,7 +567,7 @@ void NetworkManager::sendReliable(
         return;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     SteamPlayerId steamId = findSteamIdBySlot(slot);
     if (steamId == InvalidSteamId) {
         return;
@@ -599,7 +599,7 @@ void NetworkManager::sendUnreliable(
         return;
     }
 
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     SteamPlayerId steamId = findSteamIdBySlot(slot);
     if (steamId == InvalidSteamId) {
         return;
@@ -644,7 +644,7 @@ void NetworkManager::handleReceivedData(
 }
 
 void NetworkManager::syncPlayersFromLobby() {
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (!g_lobbyState.lobbyReady) {
         return;
     }
@@ -685,7 +685,7 @@ void NetworkManager::syncPlayersFromLobby() {
 }
 
 void NetworkManager::checkForPendingInvite(int argc, char** argv) {
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (!m_initialized) {
         return;
     }
@@ -750,7 +750,7 @@ PlayerSlot NetworkManager::allocateFreeSlot() const {
 }
 
 void NetworkManager::finalizeLobbyJoin() {
-#ifdef CHISEL_ENABLE_STEAM
+#ifdef KITBASHER_ENABLE_STEAM
     if (!g_lobbyState.lobbyReady) {
         return;
     }

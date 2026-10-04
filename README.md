@@ -1,7 +1,7 @@
-# ChiselEngine
+# KitBasher
 **A easy to use and portable VR Game Engine.**
 
-ChiselEngine is a easy to use VR game engine built on **OpenXR** and **OpenGL**. The goal is to use this as a way to avoid using more bloated, general purpose engines to create specific games and simulations in the VR space.
+KitBasher is a easy to use VR game engine built on **OpenXR** and **OpenGL**. The goal is to use this as a way to avoid using more bloated, general purpose engines to create specific games and simulations in the VR space.
 
 <img width="980" height="614" alt="Screenshot 2026-09-27 013940" src="https://github.com/user-attachments/assets/5a13754b-50e1-4195-8f8e-0f436b22f4eb" />
 
@@ -9,7 +9,7 @@ ChiselEngine is a easy to use VR game engine built on **OpenXR** and **OpenGL**.
 
 ## Design Philosophy
 
-ChiselEngine is designed so that a developer can focus on gameplay logic without needing to be an expert in OpenGL, OpenXR, or multi-threaded physics.
+KitBasher is designed so that a developer can focus on gameplay logic without needing to be an expert in OpenGL, OpenXR, or multi-threaded physics.
 
 ### Node-Based Scene Graph (Babylon.js Inspired)
 Everything in the world is a `Node`. Whether it's a camera, a light, or a 3D model, they all inherit from a common base. This allows for:
@@ -23,7 +23,7 @@ live in the top-level `game/` project folder. Developers normally edit
 keeps the engine reusable while making iteration on a game script fast.
 
 ### VR-First Workflow
-VR development is traditionally slow because of the "Headset Cycle" (Put on headset -> Test -> Take off headset -> Code). ChiselEngine breaks this with **VR Simulation Mode**, allowing developers to test movements and logic in a desktop window before deploying to hardware.
+VR development is traditionally slow because of the "Headset Cycle" (Put on headset -> Test -> Take off headset -> Code). KitBasher breaks this with **VR Simulation Mode**, allowing developers to test movements and logic in a desktop window before deploying to hardware.
 
 ---
 
@@ -143,7 +143,7 @@ animator:stopAnimation(frog, "Idle")
 ```
 
 ### VR Player Rig & Locomotion
-ChiselEngine includes a built-in VR Player Rig that handles headset tracking, smooth/snap turning, and thumbstick/gamepad locomotion. The rig decouples the physical headset position from the virtual world, allowing you to move the player without causing VR motion sickness.
+KitBasher includes a built-in VR Player Rig that handles headset tracking, smooth/snap turning, and thumbstick/gamepad locomotion. The rig decouples the physical headset position from the virtual world, allowing you to move the player without causing VR motion sickness.
 
 You can control and query the VR player's position and comfort settings directly from Lua using the `Engine` namespace:
 
@@ -201,5 +201,5 @@ Remove-Item -Recurse -Force build
 cmake -B build "-DCMAKE_POLICY_VERSION_MINIMUM=3.6"
 cmake --build build
 ```
-Then run the ChiselEngine.exe file in `\build\bin\Debug\ChiselEngine.exe`
+Then run the KitBasher.exe file in `\build\bin\Debug\KitBasher.exe`
 

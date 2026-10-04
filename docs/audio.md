@@ -1,6 +1,6 @@
 # Audio
 
-ChiselEngine includes a built-in audio system powered by `miniaudio`. It allows you to easily play sound effects and background music directly from your Lua gameplay scripts. 
+KitBasher includes a built-in audio system powered by `miniaudio`. It allows you to easily play sound effects and background music directly from your Lua gameplay scripts. 
 
 The audio system separates **Music** (long-running, single-track background audio) from **Sounds** (short, overlapping, one-shot or looping sound effects).
 

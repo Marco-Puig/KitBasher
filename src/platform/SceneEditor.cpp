@@ -13,7 +13,7 @@
 #if defined(__has_include)
 #  if __has_include("net/NetworkManager.h")
 #    include "net/NetworkManager.h"
-#    define CHISEL_SCENE_EDITOR_HAS_NETWORK 1
+#    define KITBASHER_SCENE_EDITOR_HAS_NETWORK 1
 #  endif
 #endif
 
@@ -278,7 +278,7 @@ void SceneEditor::render(Window& window, XRManager& xr, Node* sceneRoot,
         if (ImGui::Begin("Scene Editor", &m_visible, windowFlags)) {
             ImGui::Text("Press F1 to toggle this window");
             ImGui::Separator();
-            ImGui::Text("Engine version: %s", ChiselEngine::Version);
+            ImGui::Text("Engine version: %s", KitBasher::Version);
             ImGui::Separator();
             ImGui::Text("FPS: %.1f", m_fps);
             ImGui::Text("Frame time: %.3f ms", m_frameTimeMs);
@@ -311,7 +311,7 @@ void SceneEditor::render(Window& window, XRManager& xr, Node* sceneRoot,
                 // FXAA enabled/disabled
             }
 
-#ifdef CHISEL_SCENE_EDITOR_HAS_NETWORK
+#ifdef KITBASHER_SCENE_EDITOR_HAS_NETWORK
             ImGui::Separator();
             if (ImGui::CollapsingHeader("Multiplayer", ImGuiTreeNodeFlags_DefaultOpen)) {
                 auto& network = net::NetworkManager::getInstance();

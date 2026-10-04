@@ -5,7 +5,7 @@
 #include <vector>
 #include <unordered_map>
 
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyID.h>
@@ -38,7 +38,7 @@ private:
     Node* m_node;
     BodyType m_type;
     glm::vec3 m_size;
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     JPH::BodyID m_bodyID;
     JPH::ShapeRefC m_shape;
     mutable bool m_debugWarningLogged = false;
@@ -84,7 +84,7 @@ private:
     bool m_initialized = false;
     bool m_debugDrawEnabled = false;
 
-#ifdef CHISEL_ENABLE_JOLT
+#ifdef KITBASHER_ENABLE_JOLT
     std::unordered_map<Node*, JPH::BodyID> m_nodeToBody;
     JPH::BodyID getBodyIdFromNode(Node* node);
 

@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <vector>
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
 #include <openxr/openxr.h>
 #endif
 
@@ -53,7 +53,7 @@ private:
     XRManager(const XRManager&) = delete;
     XRManager& operator=(const XRManager&) = delete;
 
-#ifdef CHISEL_ENABLE_OPENXR
+#ifdef KITBASHER_ENABLE_OPENXR
     bool createInstance();
     bool createSession(Window& window);
     bool createActions();

@@ -34,17 +34,17 @@
 #if defined(__has_include)
 #  if __has_include("net/NetworkManager.h")
 #    include "net/NetworkManager.h"
-#    define CHISEL_HAS_NETWORK_MANAGER 1
+#    define KITBASHER_HAS_NETWORK_MANAGER 1
 #  endif
 
 #  if __has_include("net/ReplicationManager.h")
 #    include "net/ReplicationManager.h"
-#    define CHISEL_HAS_REPLICATION_MANAGER 1
+#    define KITBASHER_HAS_REPLICATION_MANAGER 1
 #  endif
 
 #  if __has_include("scene/PlayerAvatarNode.h")
 #    include "scene/PlayerAvatarNode.h"
-#    define CHISEL_HAS_PLAYER_AVATAR 1
+#    define KITBASHER_HAS_PLAYER_AVATAR 1
 #  endif
 #endif
 
@@ -522,7 +522,7 @@ bool nodeIsParticleSystemPlaying(Node* node) {
     return false;
 }
 
-#ifdef CHISEL_HAS_NETWORK_MANAGER
+#ifdef KITBASHER_HAS_NETWORK_MANAGER
 
 bool netIsHost() {
     return net::NetworkManager::getInstance().isHost();
@@ -550,7 +550,7 @@ void netShowInviteDialog() {
 
 #endif
 
-#ifdef CHISEL_HAS_REPLICATION_MANAGER
+#ifdef KITBASHER_HAS_REPLICATION_MANAGER
 
 void netReplicateNode(Node* node) {
     if (node != nullptr) {
@@ -568,7 +568,7 @@ void netDespawnNode(Node* node) {
 
 }
 
-#if defined(CHISEL_HAS_NETWORK_MANAGER) && defined(CHISEL_HAS_REPLICATION_MANAGER)
+#if defined(KITBASHER_HAS_NETWORK_MANAGER) && defined(KITBASHER_HAS_REPLICATION_MANAGER)
 
 void netSendAvatarTransform(float x, float y, float z) {
     auto& network = net::NetworkManager::getInstance();
@@ -738,11 +738,11 @@ void LuaRuntime::bindEngineApi() {
             .addFunction("setHomePosition", &JoystickNode::setHomePosition)
         .endClass();
 
-#if defined(CHISEL_HAS_NETWORK_MANAGER) || defined(CHISEL_HAS_REPLICATION_MANAGER)
+#if defined(KITBASHER_HAS_NETWORK_MANAGER) || defined(KITBASHER_HAS_REPLICATION_MANAGER)
     luabridge::getGlobalNamespace(m_state)
         .beginNamespace("Net")
 
-#ifdef CHISEL_HAS_NETWORK_MANAGER
+#ifdef KITBASHER_HAS_NETWORK_MANAGER
             .addFunction("isHost", &netIsHost)
             .addFunction("isConnected", &netIsConnected)
             .addFunction("getLocalPlayerSlot", &netGetLocalPlayerSlot)
@@ -750,7 +750,7 @@ void LuaRuntime::bindEngineApi() {
             .addFunction("showInviteDialog", &netShowInviteDialog) 
 #endif
 
-#ifdef CHISEL_HAS_REPLICATION_MANAGER
+#ifdef KITBASHER_HAS_REPLICATION_MANAGER
             .addFunction("replicateNode", &netReplicateNode)
             .addFunction("despawnNode", &netDespawnNode)
             .addFunction("sendAvatarTransform", &netSendAvatarTransform)
