@@ -3,6 +3,7 @@
 #include "platform/PhysicsSystem.h"
 #include "scene/ArcRotateCamera.h"
 #include "rendering/Light.h"
+#include "xr/XRManager.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -851,9 +852,60 @@ void RenderSystem::renderView(
         false,
         lightSpaceMatrix
     );
-
+    
     renderCollisionDebug(view, proj);
 }
+
+void RenderSystem::drawCameraGizmo(const glm::mat4& view, const glm::mat4& projection) {
+    glm::mat4 vrHeadView = XRManager::getInstance().getHeadViewMatrix();
+    
+    // Use the VR head view if it's active, otherwise fallback to desktop camera
+    glm::mat4 targetView = (vrHeadView != glm::mat4(1.0f)) ? vrHeadView : view;
+
+    const glm::mat4 invView = glm::inverse(targetView);
+    const glm::vec3 pos = glm::vec3(invView[3]);
+    const glm::vec3 forward = -glm::normalize(glm::vec3(invView[2]));
+    const glm::vec3 up = glm::normalize(glm::vec3(invView[1]));
+    const glm::vec3 right = glm::normalize(glm::cross(forward, up));
+
+    const float size = 0.2f;
+    std::vector<glm::vec3> vertices;
+
+    // Camera Pyramid
+    vertices.push_back(pos);
+    vertices.push_back(pos + (right * size * 0.5f) + (up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos);
+    vertices.push_back(pos + (-right * size * 0.5f) + (up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos);
+    vertices.push_back(pos + (right * size * 0.5f) + (-up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos);
+    vertices.push_back(pos + (-right * size * 0.5f) + (-up * size * 0.5f) - (forward * size));
+    
+    // Base
+    vertices.push_back(pos + (right * size * 0.5f) + (up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos + (-right * size * 0.5f) + (up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos + (-right * size * 0.5f) + (-up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos + (right * size * 0.5f) + (-up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos + (right * size * 0.5f) + (-up * size * 0.5f) - (forward * size));
+    vertices.push_back(pos + (right * size * 0.5f) + (up * size * 0.5f) - (forward * size));
+
+    if (vertices.empty()) return;
+
+    m_debugShader->use();
+    m_debugShader->setMat4("uView", view);
+    m_debugShader->setMat4("uProjection", projection);
+
+    glBindVertexArray(m_debugVao);
+    glBindBuffer(GL_ARRAY_BUFFER, m_debugVbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
+    glEnableVertexAttribArray(0);
+
+    glLineWidth(2.0f);
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertices.size()));
+    glBindVertexArray(0);
+}
+
 
 void RenderSystem::renderSkybox(const glm::mat4& view, const glm::mat4& projection) {
     if (m_skyboxTexture == 0 && !m_skyboxPath.empty()) {
@@ -991,6 +1043,8 @@ void RenderSystem::renderCollisionDebug(const glm::mat4& view, const glm::mat4& 
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertices.size()));
 
         glBindVertexArray(0);
+
+        drawCameraGizmo(view, projection);
 #if defined(_CPPUNWIND)
     } catch (const std::exception& error) {
         std::cerr << "[Render] Collision debug skipped after exception: "

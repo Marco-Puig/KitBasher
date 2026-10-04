@@ -297,7 +297,7 @@ void SceneEditor::render(Window& window, XRManager& xr, Node* sceneRoot,
                 ImGui::TextUnformatted("OpenXR runtime");
             else
                 ImGui::TextUnformatted("OpenXR unavailable; desktop fallback");
-            if (ImGui::Checkbox("Show Collision Debug", &m_showCollisionDebug))
+            if (ImGui::Checkbox("Show Collisions & Additional Gizmos", &m_showCollisionDebug))
                 PhysicsSystem::getInstance().setDebugDrawEnabled(m_showCollisionDebug);
             if (ImGui::Checkbox("V-Sync", &m_vsync))
                 window.setVSync(m_vsync);

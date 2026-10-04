@@ -35,6 +35,7 @@ public:
     bool acquireView(uint32_t eye, glm::mat4& view, glm::mat4& projection);
     void releaseView(uint32_t eye);
     uint32_t getViewTexture(uint32_t eye) const;
+    glm::mat4 getHeadViewMatrix() const;
     uint32_t getViewWidth(uint32_t eye) const;
     uint32_t getViewHeight(uint32_t eye) const;
     void endFrame();

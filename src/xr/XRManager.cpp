@@ -1,7 +1,9 @@
 #include "XRManager.h"
 #include "platform/Window.h"
-
+#include "xr/VRPlayerRig.h"
+#include "scene/Node.h"
 #include <glm/gtc/matrix_transform.hpp>
+
 #include <glm/gtc/quaternion.hpp>
 
 #include <algorithm>
@@ -400,6 +402,26 @@ void XRManager::endFrame() {
     check(xrEndFrame(m_session, &endInfo), "xrEndFrame");
 
     m_frameBegun = false;
+#endif
+}
+
+
+glm::mat4 XRManager::getHeadViewMatrix() const {
+#ifdef CHISEL_ENABLE_OPENXR
+    if (!m_sessionReady || m_views[0].type == 0) {
+        return glm::mat4(1.0f);
+    }
+
+    // The head pose is relative to the stage space.
+    // We combine it with the VRPlayerRig's world transform.
+    const XrPosef& pose = m_views[0].pose;
+    const glm::quat orientation(pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z);
+    const glm::vec3 position(pose.position.x, pose.position.y, pose.position.z);
+    
+    glm::mat4 localView = glm::translate(glm::mat4(1.0f), -position) * glm::mat4_cast(glm::conjugate(orientation));
+    return VRPlayerRig::getInstance().getWorldToRig() * localView;
+#else
+    return glm::mat4(1.0f);
 #endif
 }
 
